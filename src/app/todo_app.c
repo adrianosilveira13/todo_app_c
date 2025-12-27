@@ -141,3 +141,32 @@ static int cmp_done_first(const void *a, const void *b)
 
     return strcmp(ta->text, tb->text);
 }
+
+int todo_app_sort(TodoApp *app, SortMode mode)
+{
+    if (app->tasks.count == 0)
+        return 1; // nothing to sort, return success
+
+    int (*cmp)(const void *, const void *) = NULL;
+
+    switch (mode)
+    {
+    case SORT_TEXT_AZ:
+        cmp = cmp_text_az;
+        break;
+    case SORT_TEXT_ZA:
+        cmp = cmp_text_za;
+        break;
+    case SORT_PENDING_FIRST:
+        cmp = cmp_pending_first;
+        break;
+    case SORT_DONE_FIRST:
+        cmp = cmp_done_first;
+        break;
+    default:
+        return 0; // invalid sort mode
+    }
+
+    qsort(app->tasks.items, app->tasks.count, sizeof(Task), cmp);
+    return autosave(app); // after sorting the tasks, auto save the state of the app to the repository
+}

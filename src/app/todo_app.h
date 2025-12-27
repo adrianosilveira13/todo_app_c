@@ -21,7 +21,7 @@ typedef struct TodoApp
 typedef enum
 {
     SORT_TEXT_AZ = 1,
-    SORT_TEXT_Z1 = 2,
+    SORT_TEXT_ZA = 2,
     SORT_PENDING_FIRST = 3,
     SORT_DONE_FIRST = 4,
 } SortMode;

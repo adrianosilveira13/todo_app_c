@@ -11,7 +11,7 @@ typedef struct
 
 typedef struct
 {
-    Task *tasks;
+    Task *items;
     size_t count;
     size_t capacity;
 } TaskList;

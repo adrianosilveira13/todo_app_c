@@ -51,3 +51,8 @@ int todo_app_save(TodoApp *app)
         return 0;                                          // if there is no save_all function in the repository contract, return failure
     return app->repo.save_all(app->repo.ctx, &app->tasks); // call the save_all function with the repository context and the task list to save tasks into the repository
 }
+
+const TaskList *todo_app_tasks(const TodoApp *app)
+{
+    return &app->tasks; // return a pointer to the task list inside the app structure
+}

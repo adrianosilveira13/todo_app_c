@@ -33,3 +33,21 @@ void task_list_free(TaskList *list) // This function exists to free the memory a
     list->count = 0;    // I reset the count to 0, indicating that there are no tasks left in the list.
     list->capacity = 0; // I set the capacity to 0, indicating that there is no allocated space for tasks anymore.
 }
+
+static int ensure_capacity(TaskList *list, size_t needed) // static function only visible within this file, this feels like a private method when i think about OOP
+{
+    if (list->capacity >= needed)
+        return 1;                                                    // if the current capacity is already sufficient, return success
+    size_t new_cap = (list->capacity == 0) ? 8 : list->capacity * 2; // if there is no buffer the capacity starts with 8, if there is already some buffer i double it
+
+    while (new_cap < needed)
+        new_cap *= 2; // keep doubling the capacity until it meets or exceeds the needed capacity
+
+    Task *p = (Task *)realloc(list->items, new_cap * sizeof(Task)); // try to reallocate memory for the items array with the new capacity, by picking the array of tasks inside the items field of the TaskList structure
+    if (!p)
+        return 0; // if reallocation fails, return failure
+
+    list->items = p;          // update the items pointer to the newly allocated memory
+    list->capacity = new_cap; // update the capacity to the new capacity
+    return 1;                 // return success
+}

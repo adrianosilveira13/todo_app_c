@@ -103,3 +103,15 @@ int todo_app_delete(TodoApp *app, size_t index)
         return 0;         // remove the task at the specified index from the task list
     return autosave(app); // after deleting the task, auto save the state of the app to the repository
 }
+
+static int cmp_text_az(const void *a, const void *b) // this function is to be passed to the qsort function of the standard library
+{
+    const Task *ta = (const Task *)a; // here we cast the void pointers to Task pointers
+    const Task *tb = (const Task *)b;
+    return strcmp(ta->text, tb->text); // here we compare the text using strcmp, if a comes first it returns a negative value, if b comes first it returns a positive value, if they are equal it returns 0
+}
+
+static int cmp_text_za(const void *a, const void *b)
+{
+    return -cmp_text_az(a, b); // reverse the result of cmp_text_az to get descending order
+}

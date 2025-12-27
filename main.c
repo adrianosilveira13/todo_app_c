@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct Task
+typedef struct
 {
   char *task;
   int completed; // 1 for completed, 0 for not completed
-};
+} Task;
 
-struct Task *tasks = NULL;
+Task *tasks = NULL;
 size_t task_count = 0;
 
 int main()

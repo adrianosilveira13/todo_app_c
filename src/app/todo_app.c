@@ -86,3 +86,13 @@ int todo_app_edit(TodoApp *app, size_t index, const char *new_text)
 
     return autosave(app); // after editing the task, auto save the state of the app to the repository
 }
+
+int todo_app_toggle(TodoApp *app, size_t index)
+{
+    if (index >= app->tasks.count)
+        return 0; // validate the index
+
+    app->tasks.items[index].completed = app->tasks.items[index].completed ? 0 : 1; // toggle the completed status of the task
+
+    return autosave(app); // after toggling the task, auto save the state of the app to the repo
+}

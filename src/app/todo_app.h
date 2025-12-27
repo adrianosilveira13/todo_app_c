@@ -12,4 +12,18 @@ typedef struct TaskRepository
     void (*destroy)(void *ctx);                     // this is a pointer to a function called destroy that receives a context pointer and returns nothing (void), I think this one will be used to clean up any resources associated with the repository context
 } TaskRepository;
 
+typedef struct TodoApp
+{
+    TaskRepository repo;
+    TaskList tasks;
+} TodoApp;
+
+typedef enum
+{
+    SORT_TEXT_AZ = 1,
+    SORT_TEXT_Z1 = 2,
+    SORT_PENDING_FIRST = 3,
+    SORT_DONE_FIRST = 4,
+} SortMode;
+
 #endif

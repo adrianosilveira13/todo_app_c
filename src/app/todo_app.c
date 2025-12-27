@@ -13,3 +13,18 @@ void todo_app_init(TodoApp *app, TaskRepository repo)
     app->repo = repo;            // copy the contract of the repository into the app structure
     task_list_init(&app->tasks); // initialize the task list inside the app structure
 }
+
+void todo_app_free(TodoApp *app)
+{
+    task_list_free(&app->tasks); // free the memory allocated for the task list inside the app structure
+
+    if (app->repo.destroy)
+    {
+        app->repo.destroy(app->repo.ctx); // if there is a destroy function in the repository contract, call it to clean up any resources associated with the repository context
+    }
+
+    app->repo.ctx = NULL; // set the repo context pointer to NULL to avoid dangling pointers
+    app->repo.load_all = NULL;
+    app->repo.save_all = NULL;
+    app->repo.destroy = NULL;
+}

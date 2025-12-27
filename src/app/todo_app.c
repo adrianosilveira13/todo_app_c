@@ -96,3 +96,10 @@ int todo_app_toggle(TodoApp *app, size_t index)
 
     return autosave(app); // after toggling the task, auto save the state of the app to the repo
 }
+
+int todo_app_delete(TodoApp *app, size_t index)
+{
+    if (!task_list_remove_at(&app->tasks, index))
+        return 0;         // remove the task at the specified index from the task list
+    return autosave(app); // after deleting the task, auto save the state of the app to the repository
+}

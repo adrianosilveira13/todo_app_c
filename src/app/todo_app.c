@@ -67,3 +67,22 @@ int todo_app_add(TodoApp *app, const char *text)
 
     return autosave(app); // after adding the task, automatically save the state of the app to the repository
 }
+
+int todo_app_edit(TodoApp *app, size_t index, const char *new_text)
+{
+    if (index >= app->tasks.count)
+        return 0; // validate the index
+    if (!new_text || new_text[0] == '\0')
+        return 0;
+
+    size_t n = strlen(new_text);        // allocates new memory for the new text
+    char *copy = (char *)malloc(n + 1); // allocates memory for the new text plus the null terminator
+    if (!copy)
+        return 0;
+    memcpy(copy, new_text, n + 1); // copy the new text into the allocated memory
+
+    free(app->tasks.items[index].text);  // free the old text memory
+    app->tasks.items[index].text = copy; // assign the new text to the task list
+
+    return autosave(app); // after editing the task, auto save the state of the app to the repository
+}

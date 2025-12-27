@@ -45,3 +45,36 @@ static int ensure_schema(sqlite3 *db)
         ");";
     return exec_sql(db, sql);
 }
+
+static int repo_load_all(void *ctx, TaskList *out_tasks)
+{
+    SqliteRepoCtx *repo_ctx = (SqliteRepoCtx *)ctx;
+
+    task_list_free(out_tasks);
+    task_list_init(out_tasks);
+
+    const char *sql = "SELECT text, completed FROM tasks ORDER BY id ASC;";
+    sqlite3_stmt *st = NULL; // prepared statement
+
+    int rc = sqlite3_prepare_v2(repo_ctx->db, sql, -1, &st, NULL);
+    if (rc != SQLITE_OK)
+        return 0;
+
+    while ((rc = sqlite3_step(st)) == SQLITE_ROW)
+    {
+        const unsigned char *text = sqlite3_column_text(st, 0);
+        int completed = sqlite3_column_int(st, 1);
+
+        const char *t = (const char *)text;
+        if (!t)
+            t = "";
+
+        if (!task_list_push(out_tasks, t, completed ? 1 : 0))
+        {
+            sqlite3_finalize(st);
+            return 0;
+        }
+    }
+    sqlite3_finalize(st);
+    return (rc == SQLITE_DONE) ? 1 : 0;
+}

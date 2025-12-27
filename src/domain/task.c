@@ -18,3 +18,18 @@ void task_list_init(TaskList *list) // this function initializes a TaskList stru
     list->count = 0;    // Here I set the count to 0, indicating that the list of items is currently empty.
     list->capacity = 0; // Here I set the capacity to 0, so there is no space allocated for items yet.
 }
+
+void task_list_free(TaskList *list) // This function exists to free the memory allocated and used by a TaskList structure.
+{
+    if (!list) // if the list pointer is null, there is nothing to free.
+        return;
+    for (size_t i = 0; i < list->count; i++) // this loop iterates over each task in the list, each task have a text field that is heap-allocated
+    {
+        free(list->items[i].text);  // Here I free the memory allocated for the text content of each task inside the list to prevent memory leaks.
+        list->items[i].text = NULL; // After freeing the text, I set the pointer to NULL to avoid dangling pointers.
+    }
+    free(list->items);  // After freeing all the individual tasks contents, I free the memory allocated for the array of tasks inside the task list itself.
+    list->items = NULL; // After freeing the items array, I set the pointer to NULL to avoid dangling pointers.
+    list->count = 0;    // I reset the count to 0, indicating that there are no tasks left in the list.
+    list->capacity = 0; // I set the capacity to 0, indicating that there is no allocated space for tasks anymore.
+}

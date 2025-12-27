@@ -28,3 +28,19 @@ void todo_app_free(TodoApp *app)
     app->repo.save_all = NULL;
     app->repo.destroy = NULL;
 }
+
+/**
+ * This function is really interesting to me because I'm starting to see how patterns of abstraction are
+ * implemented in C. Here we have a function that loads tasks from a repository into the app structure.
+ * The way the repository is implemented, whether if it's a file-based repository, an in-memory repository,
+ * or a database-backed repository, is abstracted away from the app itself. The app just knows that it has
+ * a repository that can load tasks. This is awesome because it allows for flexibility. I can use a file-based approach now
+ * and later switch to a database-backed approach without changing the app logic.
+ * 
+ */
+int todo_app_load(TodoApp *app)
+{
+    if (!app->repo.load_all)
+        return 0;                                          // if there is no load_all function in the repository contract, return failure
+    return app->repo.load_all(app->repo.ctx, &app->tasks); // call the load_all function with the repository context and the task list to load tasks from the repository into the app
+}

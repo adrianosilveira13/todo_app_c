@@ -20,3 +20,18 @@ static char *xstrdup_local(const char *s)
     return p;
 }
 
+static int exec_sql(sqlite3 *db, const char *sql)
+{
+    char *errmsg = NULL;
+    int rc = sqlite3_exec(db, sql, NULL, NULL, &errmsg);
+    if (rc != SQLITE_OK)
+    {
+        if (errmsg)
+        {
+            sqlite3_free(errmsg);
+            return 0;
+        }
+    }
+    return 1;
+}
+

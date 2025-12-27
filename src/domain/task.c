@@ -51,3 +51,35 @@ static int ensure_capacity(TaskList *list, size_t needed) // static function onl
     list->capacity = new_cap; // update the capacity to the new capacity
     return 1;                 // return success
 }
+
+int task_list_push(TaskList *list, const char *text, int completed)
+{
+    if (!ensure_capacity(list, list->count + 1))
+        return 0; // ensure there is enough capacity for one more task, if not return failure
+    /**
+     * I had some doubts about this part, so I asked GPT for clarification. My question was:
+     * "Why is it necessary to duplicate the text string when adding a new task to the task list? Isn't it enough to just assign the pointer?"
+     *
+     * And this was the answer I got:
+     *
+     * Creates a duplicate of the given text string.
+     *
+     * This is necessary to ensure that the task structure owns its own copy of the text,
+     * preventing issues if the original string is modified or freed elsewhere.
+     * By duplicating the string, each task maintains its own independent copy,
+     * avoiding unintended side effects and potential bugs.
+     *
+     * Although this approach uses additional memory, it is a common and safe practice
+     * in C to manage string ownership and lifetime, especially when storing strings
+     * in data structures like lists.
+     *
+     * If 'text' is NULL, an empty string is duplicated instead.
+     */
+    char *copy = xstrdup(text ? text : ""); // this line calls the private helper function xstrdup to create a duplicate of the input text string
+    if (!copy)
+        return 0; // if duplication fails, return failure
+
+    list->items[list->count].text = copy;                   // assing the copy of the incoming text string to the text field of the new task being added to the list, at the index indicated by count
+    list->items[list->count].completed = completed ? 1 : 0; // assign the completed status to the new task being added to the list
+    return 1;                                               // return success
+}

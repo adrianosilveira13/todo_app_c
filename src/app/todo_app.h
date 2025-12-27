@@ -26,4 +26,40 @@ typedef enum
     SORT_DONE_FIRST = 4,
 } SortMode;
 
+/* lifecycle management functions for TodoApp */
+void todo_app_init(TodoApp *app, TaskRepository repo);
+void todo_app_free(TodoApp *app);
+
+/* persistency */
+int todo_app_load(TodoApp *app);
+int todo_app_save(TodoApp *app);
+
+/** reading (view) */
+const TaskList *todo_app_tasks(const TodoApp *app);
+
+/** CRUD */
+int todo_app_add(TodoApp *app, const char *text);
+int todo_app_edit(TodoApp *app, size_t index, const char *new_text);
+int todo_app_toggle(TodoApp *app, size_t index);
+int todo_app_delete(TodoApp *app, size_t index);
+
+/* sorting */
+int todo_app_sort(TodoApp *app, SortMode mode);
+
+/**
+ * Searching:
+ * - Search query as a substring case-insensitive.
+ * - Returns an array of indices (0-based) allocated on the heap.
+ * - Caller needs to free the (*out_indices) array when it is no longer needed.
+ *
+ * Output contract:
+ * - If success: returns 1
+ * -- *out_count can be 0 (no matches found)
+ * -- *out_indices will be NULL if out_count is 0
+ * - If failure: returns 0
+ *
+ */
+
+int todo_app_search(const TodoApp *app, const char *query, size_t **out_indices, size_t *out_count);
+
 #endif

@@ -128,3 +128,16 @@ static int cmp_pending_first(const void *a, const void *b)
 
     return strcmp(ta->text, tb->text); // if they are the same, sort by text ascending
 }
+
+static int cmp_done_first(const void *a, const void *b)
+{
+    const Task *ta = (const Task *)a;
+    const Task *tb = (const Task *)b;
+
+    if (ta->completed != tb->completed)
+    {
+        return tb->completed - ta->completed;
+    }
+
+    return strcmp(ta->text, tb->text);
+}

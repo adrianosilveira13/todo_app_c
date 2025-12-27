@@ -1,4 +1,5 @@
 #include "todo_app.h"
+#include "../util/text.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -169,4 +170,53 @@ int todo_app_sort(TodoApp *app, SortMode mode)
 
     qsort(app->tasks.items, app->tasks.count, sizeof(Task), cmp);
     return autosave(app); // after sorting the tasks, auto save the state of the app to the repository
+}
+
+int todo_app_search(const TodoApp *app, const char *query, size_t **out_indices, size_t *out_count)
+{
+    if (!out_indices || !out_count)
+        return 0; // validate output pointers
+
+    *out_indices = NULL; // initialize output pointers to null
+    *out_count = 0;      // 0 matches found
+
+    if (!query || query[0] == '\0')
+    {
+        return 1; // empty query, return success with 0 matches
+    }
+
+    size_t cap = 8;                                       // initial capacity for the indices array
+    size_t n = 0;                                         // number of matches found
+    size_t *idx = (size_t *)malloc(cap * sizeof(size_t)); // allocate memory for the indices array
+    if (!idx)
+        return 0; // if allocation fails, return failure
+
+    for (size_t i = 0; i < app->tasks.count; i++)
+    {
+        if (text_contains_case_insensitive(app->tasks.items[i].text, query))
+        {
+            if (n == cap)
+            {
+                cap *= 2;                                                 // double the capacity
+                size_t *p = (size_t *)realloc(idx, cap * sizeof(size_t)); // reallocate memory for the indices array
+                if (!p)
+                {
+                    free(idx); // if reallocation fails, free the previously allocated memory
+                    return 0;  // return failure
+                }
+                idx = p; // update the indices pointer to the newly allocated memory
+            }
+            idx[n++] = i; // store the index of the matching task, this is post-incrementing n after storing
+        }
+    }
+
+    if (n == 0)
+    {
+        free(idx); // if no matches found, free the allocated memory
+        idx = NULL;
+    }
+
+    *out_indices = idx; // set the output indices pointer to the found indices
+    *out_count = n;     // set the output count to the number of matches found
+    return 1;           // return success
 }

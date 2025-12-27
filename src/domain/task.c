@@ -83,3 +83,19 @@ int task_list_push(TaskList *list, const char *text, int completed)
     list->items[list->count].completed = completed ? 1 : 0; // assign the completed status to the new task being added to the list
     return 1;                                               // return success
 }
+
+int task_list_remove_at(TaskList *list, size_t index)
+{
+    if (index >= list->count)
+        return 0; // if the index is out of bounds, return failure
+
+    free(list->items[index].text); // free the memory allocated for the text of the task being removed to prevent memory leaks
+
+    for (size_t i = index; i + 1 < list->count; i++) // while there are still items (i + 1) inside the list after the index
+    {
+        list->items[i] = list->items[i + 1]; // shift each subsequent task one position to the left to fill the gap left by the removed task
+    }
+
+    list->count--; // decrement the count of tasks in the list
+    return 1;      // return success
+}

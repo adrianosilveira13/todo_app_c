@@ -56,3 +56,14 @@ const TaskList *todo_app_tasks(const TodoApp *app)
 {
     return &app->tasks; // return a pointer to the task list inside the app structure
 }
+
+int todo_app_add(TodoApp *app, const char *text)
+{
+    if (!text || text[0] == '\0')
+        return 0; // validate the input text
+
+    if (!task_list_push(&app->tasks, text, 0))
+        return 0; // add the new task to the task list, if it fails it means it was a memory allocation failure
+
+    return autosave(app); // after adding the task, automatically save the state of the app to the repository
+}

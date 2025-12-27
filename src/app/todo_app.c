@@ -115,3 +115,16 @@ static int cmp_text_za(const void *a, const void *b)
 {
     return -cmp_text_az(a, b); // reverse the result of cmp_text_az to get descending order
 }
+
+static int cmp_pending_first(const void *a, const void *b)
+{
+    const Task *ta = (const Task *)a;
+    const Task *tb = (const Task *)b;
+
+    if (ta->completed != tb->completed)
+    {
+        return ta->completed - tb->completed; // if they are different, return the difference to sort pending tasks firts, this works by exploiting the fact that completed is either 0 or 1
+    }
+
+    return strcmp(ta->text, tb->text); // if they are the same, sort by text ascending
+}

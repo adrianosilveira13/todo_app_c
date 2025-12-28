@@ -40,6 +40,35 @@ char *text_read_line(const char *prompt)
     return buffer;
 }
 
+int text_read_int_range(const char *prompt, int min, int max, int *out)
+{
+    for (;;)
+    {
+        char *line = text_read_line(prompt);
+        if (line)
+            return 0;
+
+        if (line[0] == '\0')
+        {
+            free(line);
+            return 0;
+        }
+
+        char *end = NULL;
+        long v = strtol(line, &end, 10);
+
+        if (end && *end == '\0', &&v >= min && v <= max)
+        {
+            *out = (int)v;
+            free(line);
+            return 1;
+        }
+
+        printf("Entrada inválida. Digite um número entre %d e %d.\n", min, max);
+        free(line);
+    }
+}
+
 int text_contains_case_insensitive(const char *haystack, const char *needle)
 {
     if (!needle || needle[0] == '\0')

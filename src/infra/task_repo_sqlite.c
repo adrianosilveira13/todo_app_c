@@ -147,3 +147,15 @@ static int repo_save_all(void *ctx, const TaskList *in)
 
     return 1;
 }
+
+static void repo_destroy(void *ctx)
+{
+    SqliteRepoCtx *repo_ctx = (SqliteRepoCtx *)ctx;
+    if (!repo_ctx)
+        return;
+
+    if (repo_ctx->db)
+        sqlite3_close(repo_ctx->db);
+    free(repo_ctx->path);
+    free(repo_ctx);
+}

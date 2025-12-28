@@ -1,6 +1,6 @@
 # Todo List in C
 
-I've created this project as a result of a course I had with ChatGPT. I did not copy paste anything. I tried to follow the instructions from the GPI while applying my knowledge of software architecture. The code is full with my comments so I can recap and remember concepts.
+I've created this project as a result of a course I had with ChatGPT. I did not copy paste anything. I tried to follow the instructions from GPT while applying my knowledge of software architecture. The code is full with my comments so I can recap and remember concepts.
 
 ## Getting Started
 

@@ -57,7 +57,7 @@ int text_read_int_range(const char *prompt, int min, int max, int *out)
         char *end = NULL;
         long v = strtol(line, &end, 10);
 
-        if (end && *end == '\0', &&v >= min && v <= max)
+        if (end && *end == '\0' && v >= min && v <= max)
         {
             *out = (int)v;
             free(line);
@@ -97,17 +97,75 @@ char *text_encode_one_line(const char *raw)
     {
         switch (raw[i])
         {
-        case '\\', enc[j++] = '\\'; enc[j++] = '\\'; break;
-            case '\n', enc[j++] = '\\'; enc[j++] = 'n'; break;
-            case '\t', enc[j++] = '\\'; enc[j++] = 't'; break;
-            case '\r', enc[j++] = '\\'; enc[j++] = 'r'; break;
-            default:
+        case '\\':
+            enc[j++] = '\\';
+            enc[j++] = '\\';
+            break;
+        case '\n':
+            enc[j++] = '\\';
+            enc[j++] = 'n';
+            break;
+        case '\t':
+            enc[j++] = '\\';
+            enc[j++] = 't';
+            break;
+        case '\r':
+            enc[j++] = '\\';
+            enc[j++] = 'r';
+            break;
+        default:
             enc[j++] = raw[i];
             break;
         }
     }
     enc[j] = '\0';
     return enc;
+}
+
+char *text_decode_one_line(const char *enc)
+{
+    size_t len = strlen(enc);
+    char *raw = (char *)malloc(len + 1);
+    if (!raw)
+        return NULL;
+
+    size_t j = 0;
+    for (size_t i = 0; i < len; i++)
+    {
+        if (enc[i] == '\\' && i + 1 < len)
+        {
+            char n = enc[i + 1];
+            switch (n)
+            {
+            case 'n':
+                raw[j++] = '\n';
+                i++;
+                break;
+            case 't':
+                raw[j++] = '\t';
+                i++;
+                break;
+            case 'r':
+                raw[j++] = '\r';
+                i++;
+                break;
+            case '\\':
+                raw[j++] = '\\';
+                i++;
+                break;
+            default:
+                raw[j++] = n;
+                i++;
+                break;
+            }
+        }
+        else
+        {
+            raw[j++] = enc[i];
+        }
+    }
+    raw[j] = '\0';
+    return raw;
 }
 
 int text_contains_case_insensitive(const char *haystack, const char *needle)

@@ -26,6 +26,8 @@ static int exec_sql(sqlite3 *db, const char *sql)
     int rc = sqlite3_exec(db, sql, NULL, NULL, &errmsg); // TODO: how can we prevent sql injection here?
     if (rc != SQLITE_OK)
     {
+        fprintf(stderr, "sqlite3_exec falhou (rc=%d): %s\n", rc, errmsg ? errmsg : "(sem errmsg)");
+        fprintf(stderr, "SQL: %s\n", sql);
         if (errmsg)
         {
             sqlite3_free(errmsg);
@@ -41,7 +43,7 @@ static int ensure_schema(sqlite3 *db)
         "CREATE TABLE IF NOT EXISTS tasks ("
         " id INTEGER PRIMARY KEY AUTOINCREMENT,"
         " text TEXT NOT NULL,"
-        " completed INTEGER NOT NULL CHECK(completed IN (O,1))"
+        " completed INTEGER NOT NULL CHECK(completed IN (0,1))"
         ");";
     return exec_sql(db, sql);
 }
@@ -179,6 +181,11 @@ TaskRepository task_repo_sqlite_create(const char *db_path)
     int rc = sqlite3_open(repo_ctx->path, &repo_ctx->db);
     if (rc != SQLITE_OK)
     {
+        fprintf(stderr, "sqlite3_open falhou (rc=%d): %s\n",
+                rc,
+                repo_ctx->db ? sqlite3_errmsg(repo_ctx->db) : "sem handle de db");
+        fprintf(stderr, "path: %s\n", repo_ctx->path);
+
         if (repo_ctx->db)
             sqlite3_close(repo_ctx->db);
         free(repo_ctx->path);

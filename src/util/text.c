@@ -45,7 +45,7 @@ int text_read_int_range(const char *prompt, int min, int max, int *out)
     for (;;)
     {
         char *line = text_read_line(prompt);
-        if (line)
+        if (!line)
             return 0;
 
         if (line[0] == '\0')

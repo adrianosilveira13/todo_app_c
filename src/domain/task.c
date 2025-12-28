@@ -81,6 +81,7 @@ int task_list_push(TaskList *list, const char *text, int completed)
 
     list->items[list->count].text = copy;                   // assing the copy of the incoming text string to the text field of the new task being added to the list, at the index indicated by count
     list->items[list->count].completed = completed ? 1 : 0; // assign the completed status to the new task being added to the list
+    list->count++;                                          // increment the count of tasks in the list
     return 1;                                               // return success
 }
 

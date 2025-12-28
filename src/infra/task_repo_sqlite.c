@@ -159,3 +159,44 @@ static void repo_destroy(void *ctx)
     free(repo_ctx->path);
     free(repo_ctx);
 }
+
+TaskRepository task_repo_sqlite_create(const char *db_path)
+{
+    TaskRepository repo = {0};
+
+    SqliteRepoCtx *repo_ctx = (SqliteRepoCtx *)malloc(sizeof(SqliteRepoCtx));
+    if (!repo_ctx)
+        return repo;
+
+    repo_ctx->db = NULL;
+    repo_ctx->path = xstrdup_local(db_path ? db_path : "tasks.db");
+    if (!repo_ctx->path)
+    {
+        free(repo_ctx);
+        return repo;
+    }
+
+    int rc = sqlite3_open(repo_ctx->path, &repo_ctx->db);
+    if (rc != SQLITE_OK)
+    {
+        if (repo_ctx->db)
+            sqlite3_close(repo_ctx->db);
+        free(repo_ctx->path);
+        free(repo_ctx);
+        return repo;
+    }
+
+    if (!ensure_schema(repo_ctx->db))
+    {
+        sqlite3_close(repo_ctx->db);
+        free(repo_ctx->path);
+        free(repo_ctx);
+        return repo;
+    }
+
+    repo.ctx = repo_ctx;
+    repo.load_all = repo_load_all;
+    repo.save_all = repo_save_all;
+    repo.destroy = repo_destroy;
+    return repo;
+}

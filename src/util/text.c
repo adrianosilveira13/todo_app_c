@@ -4,6 +4,42 @@
 #include <string.h>
 #include <ctype.h>
 
+char *text_read_line(const char *prompt)
+{
+    if (prompt)
+    {
+        printf("%s", prompt);
+        fflush(stdout);
+    }
+
+    size_t cap = 64, len = 0;
+    char *buffer = (char *)malloc(cap);
+    if (!buffer)
+        return NULL;
+
+    int c;
+    while ((c = getchar()) != EOF)
+    {
+        if (c == '\n')
+            break;
+        if (len + 1 >= cap)
+        {
+            cap *= 2;
+            char *p = (char *)realloc(buffer, cap);
+            if (!p)
+            {
+                free(buffer);
+                return NULL;
+            }
+            buffer = p;
+        }
+        buffer[len++] = (char)c;
+    }
+
+    buffer[len] = '\0';
+    return buffer;
+}
+
 int text_contains_case_insensitive(const char *haystack, const char *needle)
 {
     if (!needle || needle[0] == '\0')

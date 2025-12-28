@@ -69,6 +69,47 @@ int text_read_int_range(const char *prompt, int min, int max, int *out)
     }
 }
 
+char *text_encode_one_line(const char *raw)
+{
+    size_t n = 0;
+    for (size_t i = 0; raw[i]; i++)
+    {
+        switch (raw[i])
+        {
+        case '\\':
+        case '\n':
+        case '\t':
+        case '\r':
+            n += 2; // Escape sequence
+            break;
+        default:
+            n += 1;
+            break;
+        }
+    }
+
+    char *enc = (char *)malloc(n + 1);
+    if (!enc)
+        return NULL;
+
+    size_t j = 0;
+    for (size_t i = 0; raw[i]; i++)
+    {
+        switch (raw[i])
+        {
+        case '\\', enc[j++] = '\\'; enc[j++] = '\\'; break;
+            case '\n', enc[j++] = '\\'; enc[j++] = 'n'; break;
+            case '\t', enc[j++] = '\\'; enc[j++] = 't'; break;
+            case '\r', enc[j++] = '\\'; enc[j++] = 'r'; break;
+            default:
+            enc[j++] = raw[i];
+            break;
+        }
+    }
+    enc[j] = '\0';
+    return enc;
+}
+
 int text_contains_case_insensitive(const char *haystack, const char *needle)
 {
     if (!needle || needle[0] == '\0')

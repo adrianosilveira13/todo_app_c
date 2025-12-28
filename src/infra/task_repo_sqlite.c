@@ -78,3 +78,72 @@ static int repo_load_all(void *ctx, TaskList *out_tasks)
     sqlite3_finalize(st);
     return (rc == SQLITE_DONE) ? 1 : 0;
 }
+
+static int repo_save_all(void *ctx, const TaskList *in)
+{
+    SqliteRepoCtx *repo_ctx = (SqliteRepoCtx *)ctx;
+
+    if (!exec_sql(repo_ctx->db, "BEGIN IMMEDIATE TRANSACTION;"))
+        return 0; // this is necessary to prevent db locks
+
+    if (!exec_sql(repo_ctx->db, "DELETE FROM tasks;")) // this exists to clear old tasks
+    {
+        exec_sql(repo_ctx->db, "ROLLBACK;");
+        return 0;
+    }
+
+    const char *sql = "INSERT INTO tasks(text, completed) VALUES (?, ?);";
+
+    sqlite3_stmt *st = NULL;
+
+    int rc = sqlite3_prepare_v2(repo_ctx->db, sql, -1, &st, NULL);
+
+    if (rc != SQLITE_OK)
+    {
+        exec_sql(repo_ctx->db, "ROLLBACK;");
+        return 0;
+    }
+
+    for (size_t i = 0; i < in->count; i++)
+    {
+        sqlite3_reset(st);
+        sqlite3_clear_bindings(st);
+        rc = sqlite3_bind_text(st, 1, in->items[i].text, -1, SQLITE_TRANSIENT);
+
+        if (rc != SQLITE_OK)
+        {
+            sqlite3_finalize(st);
+            exec_sql(repo_ctx->db, "ROLLBACK;");
+            return 0;
+        }
+
+        rc = sqlite3_bind_int(st, 2, in->items[i].completed ? 1 : 0);
+
+        if (rc != SQLITE_OK)
+        {
+            sqlite3_finalize(st);
+            exec_sql(repo_ctx->db, "ROLLBACK;");
+            return 0;
+        }
+
+        rc = sqlite3_step(st);
+
+        if (rc != SQLITE_DONE)
+        {
+            sqlite3_finalize(st);
+            exec_sql(repo_ctx->db, "ROLLBACK");
+            ;
+            return 0;
+        }
+    }
+
+    sqlite3_finalize(st);
+
+    if (!exec_sql(repo_ctx->db, "COMMIT;"))
+    {
+        exec_sql(repo_ctx->db, "ROLLBACK;");
+        return 0;
+    }
+
+    return 1;
+}
